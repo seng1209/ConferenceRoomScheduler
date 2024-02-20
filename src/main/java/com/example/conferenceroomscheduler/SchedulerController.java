@@ -92,8 +92,7 @@ public class SchedulerController implements Initializable {
             preparedStatement.setString(1,dateYesterday.toString());
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
-                lblBookingYesterday.setText(String.valueOf(rs.getInt(1))+" Booking");
-                /*System.out.println(rs.getInt(1));*/
+                lblBookingYesterday.setText(rs.getInt(1)+" Booking");
             }
             connection.close(); // close connection
         }catch (Exception e){
@@ -130,7 +129,6 @@ public class SchedulerController implements Initializable {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
                 lblBookingToday.setText(rs.getInt(1)+" Booking");
-                /*System.out.println(rs.getInt(1));*/
             }
             connection.close(); // close connection
         }catch (SQLDataException e){
@@ -171,7 +169,6 @@ public class SchedulerController implements Initializable {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()){
                 lblBookingTomorrow.setText(String.valueOf(rs.getInt(1))+" Booking");
-                /*System.out.println(rs.getInt(1));*/
             }
             connection.close(); // close connection
         }catch (Exception e){
@@ -194,12 +191,15 @@ public class SchedulerController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         btnViewYesterday.setOnMouseClicked(event -> {
             viewYesterday();
+            lblDay.setText("Yesterday");
         });
         btnViewToday.setOnMouseClicked(event -> {
             viewToday();
+            lblDay.setText("Today");
         });
         btnViewTomorrow.setOnMouseClicked(event -> {
             viewTomorrow();
+            lblDay.setText("Tomorrow");
         });
     }
 }

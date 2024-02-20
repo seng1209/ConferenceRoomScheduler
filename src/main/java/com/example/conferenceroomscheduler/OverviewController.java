@@ -1,23 +1,16 @@
 package com.example.conferenceroomscheduler;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -124,6 +117,11 @@ public class OverviewController implements Initializable {
     }
 
     public void TableView(){
+
+        for ( int i = 0; i<tableView.getItems().size(); i++) {
+            tableView.getItems().clear();
+        }
+
         try{
             bookingID.setCellValueFactory(new PropertyValueFactory<Overview, Integer>("bookingID"));
             guestName.setCellValueFactory(new PropertyValueFactory<Overview, String>("guestName"));
@@ -150,18 +148,6 @@ public class OverviewController implements Initializable {
         if (index <= -1)
             return -1;
 
-        System.out.println(bookingID.getCellData(index).toString()+" "+
-                guestName.getCellData(index).toString()+" " +
-                checkIn.getCellData(index).toString()+" " +
-                checkOut.getCellData(index).toString()+" " +
-                Integer.parseInt(numberOfPerson.getCellData(index).toString())+" " +
-                times.getCellData(index).toString()+" " +
-                start.getCellData(index).toString()+" " +
-                stop.getCellData(index).toString()+" " +
-                Integer.parseInt(roomNo.getCellData(index).toString())+" "+
-                Integer.parseInt(Size.getCellData(index).toString())
-        );
-
         String s = start.getCellData(index).toString();
         String e = stop.getCellData(index).toString();
         txtBookingID.setText(bookingID.getCellData(index).toString());
@@ -170,8 +156,8 @@ public class OverviewController implements Initializable {
         checkOutDatePicker.setValue(LocalDate.parse(checkOut.getCellData(index).toString()));
         txtPersons.setText(numberOfPerson.getCellData(index).toString());
         txtTime.setText(times.getCellData(index).toString());
-        txtStartTime.setText(s);//.substring(0, s.length()-2)
-        txtEndTime.setText(e);//.substring(0, e.length()-2)
+        txtStartTime.setText(s);
+        txtEndTime.setText(e);
         roomNoComboBox.getSelectionModel().select(Integer.parseInt(roomNo.getCellData(index).toString())-1);
         txtRoomSize.setText(Size.getCellData(index).toString());
         RoomSize = Integer.parseInt(txtRoomSize.getText());
@@ -231,8 +217,6 @@ public class OverviewController implements Initializable {
                 alert.setContentText("This is an alert");
 
                 if (IsOverlapping(StartHour, EndHour) == true){
-                    System.out.println(GuestName+" "+CheckIn+" "+CheckOut+" "+Persons+" "+Time+" "+StartHour
-                            +" "+EndHour+" "+RoomNo);
                     UpdateRoom();
                     Optional<ButtonType> rs = alert.showAndWait();
                     if (rs.isEmpty()){
@@ -298,7 +282,46 @@ public class OverviewController implements Initializable {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }/*Exception Function*/
+    }
+
+    public String calculateTime(Date date1, Date date2){
+        // Calculating the difference in milliseconds
+        long differenceInMilliSeconds
+                = Math.abs(date2.getTime() - date1.getTime());
+        // Calculating the difference in Hours
+        long differenceInHours
+                = (differenceInMilliSeconds / (60 * 60 * 1000))
+                % 24;
+        // Calculating the difference in Minutes
+        long differenceInMinutes
+                = (differenceInMilliSeconds / (60 * 1000)) % 60;
+        // Calculating the difference in Seconds
+        long differenceInSeconds
+                = (differenceInMilliSeconds / 1000) % 60;
+        return differenceInHours + ":"
+                + differenceInMinutes/* + ""
+                + differenceInSeconds + " Seconds. "*/;
+    }
+
+    public void comboBoxRoomNo(){
+        try{
+            String query = "SELECT * FROM tbroom WHERE RoomNo = ?;";
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3308/BookingConferenceRoomScheduler","root","hellomysql");
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, Integer.parseInt(roomNoComboBox.getValue()));
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()){
+                txtRoomSize.setText(rs.getString(3));
+            }
+            connection.close(); // close mysql server
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /*Exception Function*/
     public boolean CheckRoomSize(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         try{
@@ -365,26 +388,37 @@ public class OverviewController implements Initializable {
         }
     }
     public boolean IsInteger(TextField text, String name){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Integer Type");
+        alert.setContentText(name + " must be Integer");
         try{
             Integer.parseInt(text.getText());
             return true;
-        }catch (Exception e){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Integer Type");
-            alert.setContentText(name + " must be Integer");
+        }catch (NumberFormatException e){
             Optional<ButtonType> rs = alert.showAndWait();
             e.printStackTrace();
+            System.out.println(e.getMessage());
+            return false;
+        }catch (Exception e){
+            Optional<ButtonType> rs = alert.showAndWait();
+            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
         }
     }
     public boolean IsInteger(ComboBox<String> comboBox, String name){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Integer Type");
+        alert.setContentText(name + " must be Integer");
         try {
             Integer.parseInt(comboBox.getValue());
             return true;
+        }catch (NumberFormatException e){
+            Optional<ButtonType> rs = alert.showAndWait();
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return false;
         }catch (Exception e){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Integer Type");
-            alert.setContentText(name + " must be Integer");
             Optional<ButtonType> rs = alert.showAndWait();
             return false;
         }
@@ -447,48 +481,30 @@ public class OverviewController implements Initializable {
                 int hourEnd2 = Integer.parseInt(partsEnd2[0]);
                 int minEnd2 = Integer.parseInt(partsEnd2[1]);
 
-                try {
-                    if (partsStart1[2].equals("") && partsEnd1[2].equals("") && partsStart2.equals("") && partsEnd2.equals("")){
-                        System.out.println("Empty");
-                    }
-                    int secondStart1 = Integer.parseInt(partsStart1[2]);
-                    int secondEnd1 = Integer.parseInt(partsEnd1[2]);
-                    int secondStart2 = Integer.parseInt(partsStart2[2]);
-                    int secondEnd2 = Integer.parseInt(partsEnd2[2]);
-                    System.out.println(secondStart1+" "+secondEnd1+" "+secondStart2+" "+secondEnd2);
-                }catch (NumberFormatException e){
-                    e.printStackTrace();
-                }catch (ArrayIndexOutOfBoundsException e){
-                    e.printStackTrace();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-
                 if ((hourStart1 <= hourStart2 && hourStart2 <= hourEnd1)) /*&& (minStart2 <= minEnd1)) */
                 {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour Start Error");
+                    /*System.out.println("Hour Start Error");*/
                     return false;
                 } else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1)) /*&& (minEnd2 >= minStart1)) */
                 {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour End Error");
+                    /*System.out.println("Hour End Error");*/
                     return false;
                 }else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1) && (minEnd2 >= minStart1)) {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour Start Error");
+                    /*System.out.println("Hour Start Error");*/
                     return false;
                 }else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1) && (minEnd2 >= minStart1)) {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour End Error");
+                    /*System.out.println("Hour End Error");*/
                     return false;
                 }else {
-                    System.out.println("JKJ");
+                    /*System.out.println("JKJ");*/
                     return true;
                 }
             }
@@ -520,9 +536,54 @@ public class OverviewController implements Initializable {
         });
         btnUpdate.setOnMouseClicked(event -> {
             this.UpdateStatement();
+            this.TableView();
+            this.getValueToMySQL();
         });
         btnDelete.setOnMouseClicked(event -> {
             this.Delete();
+            this.TableView();
+            this.getValueToMySQL();
+        });
+        txtEndTime.setOnAction(event -> {
+            SimpleDateFormat simpleDateFormat
+                    = new SimpleDateFormat("HH:mm");
+            java.util.Date date1;
+            java.util.Date date2;
+            try {
+                date1 = simpleDateFormat.parse(
+                        txtStartTime.getText()
+                );
+                date2 = simpleDateFormat.parse(txtEndTime.getText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String time = calculateTime(date1, date2);
+            txtTime.setText(time);
+        });
+        txtStartTime.setOnAction(event -> {
+            SimpleDateFormat simpleDateFormat
+                    = new SimpleDateFormat("HH:mm");
+            java.util.Date date1;
+            Date date2;
+            try {
+                date1 = simpleDateFormat.parse(
+                        txtStartTime.getText()
+                );
+                date2 = simpleDateFormat.parse(txtEndTime.getText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String time = calculateTime(date1, date2);
+            txtTime.setText(time);
+        });
+        checkInDatePicker.setOnAction(event -> {
+            checkOutDatePicker.setValue(checkInDatePicker.getValue());
+        });
+        checkOutDatePicker.setOnAction(event -> {
+            checkInDatePicker.setValue(checkOutDatePicker.getValue());
+        });
+        roomNoComboBox.setOnAction(event -> {
+            comboBoxRoomNo();
         });
     }
 

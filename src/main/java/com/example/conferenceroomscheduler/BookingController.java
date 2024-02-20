@@ -11,11 +11,8 @@ import java.net.URL;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.OffsetTime;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.Date;
 
@@ -218,8 +215,6 @@ public class BookingController implements Initializable
                 alert.setContentText("This is an alert");
 
                 if (IsOverlapping(StartHour, EndHour)){
-                    System.out.println(GuestName+" "+CheckIn+" "+CheckOut+" "+Persons+" "+Time+" "+StartHour
-                            +" "+EndHour+" "+RoomNo);
                     addRow();
                     Optional<ButtonType> rs = alert.showAndWait();
                     if (rs.isEmpty()){
@@ -242,7 +237,7 @@ public class BookingController implements Initializable
         }
     }
 
-    public void addRow() throws ParseException {
+    public void addRow() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         try{
             String query = "INSERT INTO tbBooking(GuestName, CheckIn, CheckOut, NumberOfPerson, Times, Form_Hour, " +
@@ -270,6 +265,25 @@ public class BookingController implements Initializable
         }
     }
 
+    public String calculateTime(Date date1, Date date2){
+        // Calculating the difference in milliseconds
+        long differenceInMilliSeconds
+                = Math.abs(date2.getTime() - date1.getTime());
+        // Calculating the difference in Hours
+        long differenceInHours
+                = (differenceInMilliSeconds / (60 * 60 * 1000))
+                % 24;
+        // Calculating the difference in Minutes
+        long differenceInMinutes
+                = (differenceInMilliSeconds / (60 * 1000)) % 60;
+        // Calculating the difference in Seconds
+        long differenceInSeconds
+                = (differenceInMilliSeconds / 1000) % 60;
+        return differenceInHours + ":"
+                + differenceInMinutes/* + ""
+                + differenceInSeconds + " Seconds. "*/;
+    }
+
     /*Exception Function*/
 
     public boolean CheckRoomSize(){
@@ -288,35 +302,7 @@ public class BookingController implements Initializable
             return false;
         }
     }
-    public boolean IsTimes(TextField text, String name){
-        try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-            Date time = simpleDateFormat.parse(text.getText());
-            return true;
-        }catch (ParseException e) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Time Type");
-            alert.setContentText(name + " must be Date Time!");
-            Optional<ButtonType> rs = alert.showAndWait();
-            e.printStackTrace();
-            return false;
-        }catch (DateTimeException e){
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Time Type");
-            alert.setContentText(name + " must be Date Time!");
-            Optional<ButtonType> rs = alert.showAndWait();
-            e.printStackTrace();
-            return false;
-        }catch (Exception e){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Time Type");
-            alert.setContentText(name + " must be Date Time!");
-            Optional<ButtonType> rs = alert.showAndWait();
-            e.printStackTrace();
-            return false;
-        }
-    }
+
     public boolean IsString(TextField text, String name){
         try{
             if (text.equals(null) || text.getText().equals("") || text.getText().equals(null)){
@@ -324,6 +310,7 @@ public class BookingController implements Initializable
                 alert.setTitle("String Type");
                 alert.setContentText(name + " NullPointerException");
                 Optional<ButtonType> rs = alert.showAndWait();
+                text.requestFocus();
                 return false;
             }
             String.valueOf(text.getText());
@@ -333,6 +320,7 @@ public class BookingController implements Initializable
             alert.setTitle("String Type");
             alert.setContentText(name + " must be String!");
             Optional<ButtonType> rs = alert.showAndWait();
+            text.requestFocus();
             e.printStackTrace();
             return false;
         }
@@ -348,14 +336,6 @@ public class BookingController implements Initializable
             }
             String.valueOf(datePicker.getValue());
             return true;
-        }
-        catch (NullPointerException e){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("String Type");
-            alert.setContentText(name + " NullPointerException");
-            Optional<ButtonType> rs = alert.showAndWait();
-            e.printStackTrace();
-            return false;
         }
         catch (Exception e){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -451,26 +431,26 @@ public class BookingController implements Initializable
                 {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour Start Error");
+                    /*System.out.println("Hour Start Error");*/
                     return false;
                 } else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1)) /*&& (minEnd2 >= minStart1)) */
                 {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour End Error");
+                    /*System.out.println("Hour End Error");*/
                     return false;
                 }else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1) && (minEnd2 >= minStart1)) {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour Start Error");
+                    /*System.out.println("Hour Start Error");*/
                     return false;
                 }else if ((hourStart1 <= hourEnd2 && hourEnd2 <= hourEnd1) && (minEnd2 >= minStart1)) {
                     alert.setContentText("In"+ bookingStart +" to "+ bookingEnd +" Ready Booking");
                     Optional<ButtonType> rs = alert.showAndWait();
-                    System.out.println("Hour End Error");
+                    /*System.out.println("Hour End Error");*/
                     return false;
                 }else {
-                    System.out.println("JKJ");
+                    /*System.out.println("JKJ");*/
                     return true;
                 }
             }
@@ -499,7 +479,15 @@ public class BookingController implements Initializable
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        /* Default Values */
         roomNoComboBox.getItems().addAll(roomNo);
+        checkInDatePicker.setValue(LocalDate.now());
+        checkOutDatePicker.setValue(LocalDate.now());
+        String S = String.valueOf(LocalTime.now());
+        String E = String.valueOf(LocalTime.now());
+        txtStartTime.setText(S.substring(0, S.length()-13));
+        txtEndTime.setText(E.substring(0, E.length()-13));
+        /***************************************/
         btnCancel.setOnMouseClicked(event -> {
             txtGuestName.setText("");
             checkInDatePicker.setValue(null);
@@ -511,6 +499,44 @@ public class BookingController implements Initializable
         });
         btnNext.setOnMouseClicked(event -> {
             pushRoom();
+        });
+        txtEndTime.setOnAction(event -> {
+            SimpleDateFormat simpleDateFormat
+                    = new SimpleDateFormat("HH:mm");
+            Date date1;
+            Date date2;
+            try {
+                date1 = simpleDateFormat.parse(
+                        txtStartTime.getText()
+                );
+                date2 = simpleDateFormat.parse(txtEndTime.getText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String time = calculateTime(date1, date2);
+            txtTime.setText(time);
+        });
+        txtStartTime.setOnAction(event -> {
+            SimpleDateFormat simpleDateFormat
+                    = new SimpleDateFormat("HH:mm");
+            Date date1;
+            Date date2;
+            try {
+                date1 = simpleDateFormat.parse(
+                        txtStartTime.getText()
+                );
+                date2 = simpleDateFormat.parse(txtEndTime.getText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String time = calculateTime(date1, date2);
+            txtTime.setText(time);
+        });
+        checkInDatePicker.setOnAction(event -> {
+            checkOutDatePicker.setValue(checkInDatePicker.getValue());
+        });
+        checkOutDatePicker.setOnAction(event -> {
+            checkInDatePicker.setValue(checkOutDatePicker.getValue());
         });
     }
 }

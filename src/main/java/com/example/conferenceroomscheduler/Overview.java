@@ -108,7 +108,8 @@ public class Overview {
         this.Size = Size;
     }
 
-    public Overview(String guestName, String checkIn, String checkOut, int numberOfPerson, String times, String start, String stop, int roomNo){
+    public Overview(String guestName, String checkIn, String checkOut, int numberOfPerson, String times, String start,
+                    String stop, int roomNo){
         this.guestName = guestName;
         this.checkIn = checkIn;
         this.checkOut = checkOut;

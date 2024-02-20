@@ -87,14 +87,14 @@ public class HelloController implements Initializable {
 
         Optional<ButtonType> rs = alert.showAndWait();
         if (rs.isEmpty()){
-            System.out.println("Alert closed");
+            /*System.out.println("Alert closed");*/
         }
         else if (rs.get() == ButtonType.OK){
             Platform.exit();
-            System.out.println("OK");
+            /*System.out.println("OK");*/
         }
         else if (rs.get() == ButtonType.CANCEL){
-            System.out.println("Never!");
+            /*System.out.println("Never!");*/
         }
     }
 
