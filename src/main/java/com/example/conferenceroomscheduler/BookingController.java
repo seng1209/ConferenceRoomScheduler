@@ -131,16 +131,6 @@ public class BookingController implements Initializable
     private int RoomID;
     private  int RoomSize;
     private String[] roomNo = {"1","2","3","4","5"};
-    private ObservableList<Booking> list = FXCollections.observableArrayList();
-    private ObservableList<Overview> list1 = FXCollections.observableArrayList();
-    private ArrayList<String> guestNameList = new ArrayList<>();
-    private ArrayList<String> checkInList = new ArrayList<>();
-    private ArrayList<String> checkOutList = new ArrayList<>();
-    private ArrayList<Integer> personsList = new ArrayList<>();
-    private ArrayList<String> timesList = new ArrayList<>();
-    private ArrayList<String> startList = new ArrayList<>();
-    private ArrayList<String> endList = new ArrayList<>();
-    private ArrayList<Integer> roomNoList = new ArrayList<>();
 
     public void comboBoxRoomNo(ActionEvent event){
         try{
@@ -238,7 +228,6 @@ public class BookingController implements Initializable
     }
 
     public void addRow() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         try{
             String query = "INSERT INTO tbBooking(GuestName, CheckIn, CheckOut, NumberOfPerson, Times, Form_Hour, " +
                     "To_Hour, RoomNo) VALUES(?,?,?,?,?,?,?,?);";
@@ -402,15 +391,15 @@ public class BookingController implements Initializable
             e.printStackTrace();
         }
 
-        System.out.println(startTime+"\n"+endTime+"\n"+times); /****************************/
-        System.out.println("Start\tEnd\tTimes"); /*************************/
+//        System.out.println(startTime+"\n"+endTime+"\n"+times); /****************************/
+//        System.out.println("Start\tEnd\tTimes"); /*************************/
         String bookingStart = start;
         String bookingEnd = end;
         String[] partsStart2 = bookingStart.split(":");
         String[] partsEnd2 = bookingEnd.split(":");
         try{
             for (int i=0;i<startTime.size();i++){
-                System.out.println(startTime.get(i)+" "+endTime.get(i)+" "+times.get(i));
+//                System.out.println(startTime.get(i)+" "+endTime.get(i)+" "+times.get(i));
 
                 String[] partsStart1 = startTime.get(i).split(":");
                 String[] partsEnd1 = endTime.get(i).split(":");

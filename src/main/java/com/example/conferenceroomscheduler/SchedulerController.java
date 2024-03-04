@@ -98,7 +98,6 @@ public class SchedulerController implements Initializable {
         }catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println("View Yesterday "+dateYesterday.toString());
     }
 
     public void viewToday(){
@@ -138,7 +137,6 @@ public class SchedulerController implements Initializable {
         catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println("View Today "+dateToday.toString());
     }
 
     public void viewTomorrow(){
@@ -174,7 +172,6 @@ public class SchedulerController implements Initializable {
         }catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println("View Tomorrow "+dateTomorrow.toString());
     }
 
     public void TableView(){
