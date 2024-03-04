@@ -325,9 +325,20 @@ public class OverviewController implements Initializable {
     public boolean CheckRoomSize(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         try{
-            if (RoomSize < Integer.parseInt(txtPersons.getText())){
+            String query = "SELECT * FROM tbroom WHERE RoomNo = ?;";
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3308/BookingConferenceRoomScheduler","root","hellomysql");
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, Integer.parseInt(roomNoComboBox.getValue()));
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()){
+                txtRoomSize.setText(rs.getString(3));
+            }
+            connection.close(); // close mysql server
+            if (Integer.parseInt(txtRoomSize.getText()) < Integer.parseInt(txtPersons.getText())){
                 alert.setContentText("RoomNo "+roomNoComboBox.getValue()+" Size "+RoomSize+" unavailable!....");
-                Optional<ButtonType> rs = alert.showAndWait();
+                Optional<ButtonType> r = alert.showAndWait();
                 return false;
             }
             return true;
